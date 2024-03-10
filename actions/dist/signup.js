@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.signup = void 0;
-var bcrypt_1 = require("bcrypt");
+var bcryptjs_1 = require("bcryptjs");
 var db_1 = require("@/lib/db");
 var schemas_1 = require("@/schemas");
 var user_1 = require("@/data/user");
@@ -52,7 +52,7 @@ exports.signup = function (values) { return __awaiter(void 0, void 0, void 0, fu
                     return [2 /*return*/, { error: "Invalid Fields" }];
                 }
                 _a = validated.data, email = _a.email, password = _a.password, name = _a.name;
-                return [4 /*yield*/, bcrypt_1["default"].hash(password, 10)];
+                return [4 /*yield*/, bcryptjs_1["default"].hash(password, 10)];
             case 1:
                 hashedPassword = _b.sent();
                 return [4 /*yield*/, user_1.getUser(email)];

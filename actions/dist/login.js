@@ -39,13 +39,42 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.login = void 0;
 var schemas_1 = require("@/schemas");
+var auth_1 = require("@/auth");
+var routes_1 = require("@/routes");
+var next_auth_1 = require("next-auth");
 exports.login = function (values) { return __awaiter(void 0, void 0, void 0, function () {
-    var validated;
-    return __generator(this, function (_a) {
-        validated = schemas_1.LoginSchema.safeParse(values);
-        if (!validated.success) {
-            return [2 /*return*/, { error: "Invalid Fields" }];
+    var validated, _a, email, password, error_1;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                validated = schemas_1.LoginSchema.safeParse(values);
+                if (!validated.success) {
+                    return [2 /*return*/, { error: "Invalid Fields" }];
+                }
+                _a = validated.data, email = _a.email, password = _a.password;
+                _b.label = 1;
+            case 1:
+                _b.trys.push([1, 3, , 4]);
+                return [4 /*yield*/, auth_1.signIn("credentials", {
+                        email: email,
+                        password: password,
+                        redirectTo: routes_1.DEFAULT_LOGIN_REDIRECT
+                    })];
+            case 2:
+                _b.sent();
+                return [3 /*break*/, 4];
+            case 3:
+                error_1 = _b.sent();
+                if (error_1 instanceof next_auth_1.AuthError) {
+                    switch (error_1.type) {
+                        case "CredentialsSignin":
+                            return [2 /*return*/, { error: "Invalid credentials!" }];
+                        default:
+                            return [2 /*return*/, { error: "Something went wrong!" }];
+                    }
+                }
+                throw error_1;
+            case 4: return [2 /*return*/];
         }
-        return [2 /*return*/, { success: "Email sent!" }];
     });
 }); };

@@ -36,11 +36,15 @@ exports.LoginForm = function () {
         }
     });
     var onSubmit = function (values) {
+        setError("");
+        setSuccess("");
         startTransition(function () {
             login_1.login(values)
                 .then(function (data) {
-                setError(data.error);
-                setSuccess(data.success);
+                if (data) {
+                    setError(data.error);
+                    setSuccess(data.success);
+                }
             });
         });
     };

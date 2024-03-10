@@ -14,7 +14,7 @@ import { login } from "@/actions/login";
 
 export const LoginForm = () => {
     const [error, setError] = useState<string | undefined>("");
-    const [success, setSuccess] = useState<string | undefined>("");
+    const [success, setSuccess] = useState("");
     const [isPending, startTransition] = useTransition();
     const methods=  useForm<z.infer<typeof LoginSchema>>({
         resolver: zodResolver(LoginSchema),
@@ -26,12 +26,17 @@ export const LoginForm = () => {
     const onSubmit = (
         values: z.infer<typeof LoginSchema>
     ) => {
+        setError("");
+        setSuccess("");
         startTransition(()=> {
-
+            
             login(values)
             .then((data) => {
-                setError(data.error);
-                setSuccess(data.success);
+                if (data) {
+                    setError(data.error);
+                    setSuccess(data.success);
+                    
+                }
             })
         });
     }
