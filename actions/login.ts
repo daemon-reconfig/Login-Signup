@@ -5,14 +5,17 @@ import { signIn } from "@/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
 import { getUser } from "@/data/user";
-import { generateTokens } from "@/lib/tokens";
-import { sendEmail } from "@/lib/mail";
+import { generateTokens, generateTwoFactor } from "@/lib/tokens";
+import { getTwoFactorE } from "@/data/two-factor-t";
+import { sendEmail, twoFactor } from "@/lib/mail";
+import { db } from "@/lib/db";
+
 export const login = async (values: z.infer<typeof LoginSchema>) => {
     const validated = LoginSchema.safeParse(values);
     if(!validated.success) {
         return {error : "Invalid Fields"};
     }
-    const {email, password} = validated.data;
+    const {email, password, code} = validated.data;
     const existUser  = await getUser(email);
     if(!existUser || !existUser.email || !existUser.password) {
         return {error: "Email doesn not exist!"}
@@ -24,6 +27,38 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
             verificationToken.token,
         );
         return {success: "Email Sent!"}
+    }
+    if(!existUser.twoFactorEnabled && existUser.email) {
+        if (code){
+            console.log("code", code);
+            
+            const twoFactorToken = await getTwoFactorE(existUser.email);
+            
+            if(!twoFactorToken || Number(twoFactorToken.token) !== Number(code)){
+                
+                return {error: "Invalid Code!"}
+            }
+            const hasExpired = new Date(twoFactorToken.expires) < new Date();
+
+            if(hasExpired){
+                return {error: "Code Expired!"}
+            }
+
+            await db.twoFactorConfirm.create({
+                data: {
+                    userId: existUser.id,
+                }
+            });
+
+        }
+        else{
+            const twoFactorToken = await generateTwoFactor(existUser.email);
+            await twoFactor(
+                twoFactorToken.email,
+                twoFactorToken.token,
+            );
+            return {twoFactor: true}
+        }
     }
     try{
         await signIn("credentials", {

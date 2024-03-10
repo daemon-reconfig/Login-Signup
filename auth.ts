@@ -3,7 +3,7 @@ import {PrismaAdapter} from "@auth/prisma-adapter"
 import {db} from "./lib/db"
 import { getUserbyId } from "./data/user"
 import authConfig from "./auth.config"
-
+import { getTwoFactorConfirm } from "./data/two-factor-confirm"
 
 export const {
   handlers: { GET, POST },
@@ -34,7 +34,16 @@ export const {
             const existUser = await getUserbyId(user.id);
             // preventing sign in without verification
             if(!existUser?.emailVerified) return false;
-            
+
+            if(existUser.twoFactorEnabled) {
+                const twoFactorConfirm = await getTwoFactorConfirm(existUser.id);
+                console.log({twoFactorConfirm});
+                if(!twoFactorConfirm) return false;
+
+                await db.twoFactorConfirm.delete({
+                    where: {id: twoFactorConfirm.id}
+                });
+            }
             return true;
         },
         async session({session, token}){

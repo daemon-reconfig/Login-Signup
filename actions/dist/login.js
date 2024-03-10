@@ -44,9 +44,11 @@ var routes_1 = require("@/routes");
 var next_auth_1 = require("next-auth");
 var user_1 = require("@/data/user");
 var tokens_1 = require("@/lib/tokens");
+var two_factor_t_1 = require("@/data/two-factor-t");
 var mail_1 = require("@/lib/mail");
+var db_1 = require("@/lib/db");
 exports.login = function (values) { return __awaiter(void 0, void 0, void 0, function () {
-    var validated, _a, email, password, existUser, verificationToken, error_1;
+    var validated, _a, email, password, code, existUser, verificationToken, twoFactorToken, hasExpired, twoFactorToken, error_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -54,7 +56,7 @@ exports.login = function (values) { return __awaiter(void 0, void 0, void 0, fun
                 if (!validated.success) {
                     return [2 /*return*/, { error: "Invalid Fields" }];
                 }
-                _a = validated.data, email = _a.email, password = _a.password;
+                _a = validated.data, email = _a.email, password = _a.password, code = _a.code;
                 return [4 /*yield*/, user_1.getUser(email)];
             case 1:
                 existUser = _b.sent();
@@ -70,16 +72,45 @@ exports.login = function (values) { return __awaiter(void 0, void 0, void 0, fun
                 _b.sent();
                 return [2 /*return*/, { success: "Email Sent!" }];
             case 4:
-                _b.trys.push([4, 6, , 7]);
+                if (!(!existUser.twoFactorEnabled && existUser.email)) return [3 /*break*/, 10];
+                if (!code) return [3 /*break*/, 7];
+                console.log("code", code);
+                return [4 /*yield*/, two_factor_t_1.getTwoFactorE(existUser.email)];
+            case 5:
+                twoFactorToken = _b.sent();
+                if (!twoFactorToken || Number(twoFactorToken.token) !== Number(code)) {
+                    return [2 /*return*/, { error: "Invalid Code!" }];
+                }
+                hasExpired = new Date(twoFactorToken.expires) < new Date();
+                if (hasExpired) {
+                    return [2 /*return*/, { error: "Code Expired!" }];
+                }
+                return [4 /*yield*/, db_1.db.twoFactorConfirm.create({
+                        data: {
+                            userId: existUser.id
+                        }
+                    })];
+            case 6:
+                _b.sent();
+                return [3 /*break*/, 10];
+            case 7: return [4 /*yield*/, tokens_1.generateTwoFactor(existUser.email)];
+            case 8:
+                twoFactorToken = _b.sent();
+                return [4 /*yield*/, mail_1.twoFactor(twoFactorToken.email, twoFactorToken.token)];
+            case 9:
+                _b.sent();
+                return [2 /*return*/, { twoFactor: true }];
+            case 10:
+                _b.trys.push([10, 12, , 13]);
                 return [4 /*yield*/, auth_1.signIn("credentials", {
                         email: email,
                         password: password,
                         redirectTo: routes_1.DEFAULT_LOGIN_REDIRECT
                     })];
-            case 5:
+            case 11:
                 _b.sent();
-                return [3 /*break*/, 7];
-            case 6:
+                return [3 /*break*/, 13];
+            case 12:
                 error_1 = _b.sent();
                 if (error_1 instanceof next_auth_1.AuthError) {
                     switch (error_1.type) {
@@ -90,7 +121,7 @@ exports.login = function (values) { return __awaiter(void 0, void 0, void 0, fun
                     }
                 }
                 throw error_1;
-            case 7: return [2 /*return*/];
+            case 13: return [2 /*return*/];
         }
     });
 }); };
