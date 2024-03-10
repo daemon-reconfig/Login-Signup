@@ -9,6 +9,7 @@ import { generateTokens, generateTwoFactor } from "@/lib/tokens";
 import { getTwoFactorE } from "@/data/two-factor-t";
 import { sendEmail, twoFactor } from "@/lib/mail";
 import { db } from "@/lib/db";
+import { getTwoFactorConfirm } from "@/data/two-factor-confirm";
 
 export const login = async (values: z.infer<typeof LoginSchema>) => {
     const validated = LoginSchema.safeParse(values);
@@ -42,6 +43,19 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
 
             if(hasExpired){
                 return {error: "Code Expired!"}
+            }
+
+            await db.twoFactorToken.delete({
+                data: {
+                    userId: existUser.id,
+                }
+            });
+
+            const existConfirm = await db.twoFactorConfirm(existUser.id);
+            if(existConfirm){
+                await db.twoFactorConfirm.delete({
+                    where: {id: existConfirm.id}
+                });
             }
 
             await db.twoFactorConfirm.create({

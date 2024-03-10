@@ -48,7 +48,7 @@ var two_factor_t_1 = require("@/data/two-factor-t");
 var mail_1 = require("@/lib/mail");
 var db_1 = require("@/lib/db");
 exports.login = function (values) { return __awaiter(void 0, void 0, void 0, function () {
-    var validated, _a, email, password, code, existUser, verificationToken, twoFactorToken, hasExpired, twoFactorToken, error_1;
+    var validated, _a, email, password, code, existUser, verificationToken, twoFactorToken, hasExpired, existConfirm, twoFactorToken, error_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -72,8 +72,8 @@ exports.login = function (values) { return __awaiter(void 0, void 0, void 0, fun
                 _b.sent();
                 return [2 /*return*/, { success: "Email Sent!" }];
             case 4:
-                if (!(!existUser.twoFactorEnabled && existUser.email)) return [3 /*break*/, 10];
-                if (!code) return [3 /*break*/, 7];
+                if (!(!existUser.twoFactorEnabled && existUser.email)) return [3 /*break*/, 14];
+                if (!code) return [3 /*break*/, 11];
                 console.log("code", code);
                 return [4 /*yield*/, two_factor_t_1.getTwoFactorE(existUser.email)];
             case 5:
@@ -85,32 +85,49 @@ exports.login = function (values) { return __awaiter(void 0, void 0, void 0, fun
                 if (hasExpired) {
                     return [2 /*return*/, { error: "Code Expired!" }];
                 }
-                return [4 /*yield*/, db_1.db.twoFactorConfirm.create({
+                return [4 /*yield*/, db_1.db.twoFactorToken["delete"]({
                         data: {
                             userId: existUser.id
                         }
                     })];
             case 6:
                 _b.sent();
-                return [3 /*break*/, 10];
-            case 7: return [4 /*yield*/, tokens_1.generateTwoFactor(existUser.email)];
+                return [4 /*yield*/, db_1.db.twoFactorConfirm(existUser.id)];
+            case 7:
+                existConfirm = _b.sent();
+                if (!existConfirm) return [3 /*break*/, 9];
+                return [4 /*yield*/, db_1.db.twoFactorConfirm["delete"]({
+                        where: { id: existConfirm.id }
+                    })];
             case 8:
+                _b.sent();
+                _b.label = 9;
+            case 9: return [4 /*yield*/, db_1.db.twoFactorConfirm.create({
+                    data: {
+                        userId: existUser.id
+                    }
+                })];
+            case 10:
+                _b.sent();
+                return [3 /*break*/, 14];
+            case 11: return [4 /*yield*/, tokens_1.generateTwoFactor(existUser.email)];
+            case 12:
                 twoFactorToken = _b.sent();
                 return [4 /*yield*/, mail_1.twoFactor(twoFactorToken.email, twoFactorToken.token)];
-            case 9:
+            case 13:
                 _b.sent();
                 return [2 /*return*/, { twoFactor: true }];
-            case 10:
-                _b.trys.push([10, 12, , 13]);
+            case 14:
+                _b.trys.push([14, 16, , 17]);
                 return [4 /*yield*/, auth_1.signIn("credentials", {
                         email: email,
                         password: password,
                         redirectTo: routes_1.DEFAULT_LOGIN_REDIRECT
                     })];
-            case 11:
+            case 15:
                 _b.sent();
-                return [3 /*break*/, 13];
-            case 12:
+                return [3 /*break*/, 17];
+            case 16:
                 error_1 = _b.sent();
                 if (error_1 instanceof next_auth_1.AuthError) {
                     switch (error_1.type) {
@@ -121,7 +138,7 @@ exports.login = function (values) { return __awaiter(void 0, void 0, void 0, fun
                     }
                 }
                 throw error_1;
-            case 13: return [2 /*return*/];
+            case 17: return [2 /*return*/];
         }
     });
 }); };

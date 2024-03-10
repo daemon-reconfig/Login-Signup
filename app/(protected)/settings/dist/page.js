@@ -1,3 +1,4 @@
+"use server";
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -45,7 +46,6 @@ var Settings = function () { return __awaiter(void 0, void 0, void 0, function (
             case 1:
                 session = _a.sent();
                 return [2 /*return*/, (React.createElement("div", null,
-                        JSON.stringify(session),
                         React.createElement("form", { action: function () { return __awaiter(void 0, void 0, void 0, function () {
                                 "use server";
                                 return __generator(this, function (_a) {
