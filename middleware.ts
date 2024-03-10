@@ -2,7 +2,7 @@
 import authConfig from "./auth.config";
 import NextAuth from "next-auth";
 import { apiAuth, DEFAULT_LOGIN_REDIRECT, publicRoutes, authRoutes } from "./routes";
-const { auth } = NextAuth(authConfig);
+import {auth} from "./auth";
 export default auth((req) => {
     const { nextUrl } = req;
     const isLogged = !!req.auth;
@@ -26,9 +26,10 @@ export default auth((req) => {
     }
     
     return null;
+    
 })
 
-// Optionally, don't invoke Middleware on some paths
+
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)','/','/(api|trpc)(.*)"],
+  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 }
