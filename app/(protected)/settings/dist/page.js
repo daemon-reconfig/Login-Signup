@@ -44,7 +44,20 @@ var Settings = function () { return __awaiter(void 0, void 0, void 0, function (
             case 0: return [4 /*yield*/, auth_1.auth()];
             case 1:
                 session = _a.sent();
-                return [2 /*return*/, (React.createElement("div", null, JSON.stringify(session)))];
+                return [2 /*return*/, (React.createElement("div", null,
+                        JSON.stringify(session),
+                        React.createElement("form", { action: function () { return __awaiter(void 0, void 0, void 0, function () {
+                                "use server";
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0: return [4 /*yield*/, auth_1.signOut()];
+                                        case 1:
+                                            _a.sent();
+                                            return [2 /*return*/];
+                                    }
+                                });
+                            }); } },
+                            React.createElement("button", { type: "submit" }, "Sign out"))))];
         }
     });
 }); };
