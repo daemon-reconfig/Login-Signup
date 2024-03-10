@@ -1,3 +1,4 @@
+"use server";
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -36,42 +37,34 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.sendEmail = exports.sendPassword = void 0;
-var resend_1 = require("resend");
-var resend = new resend_1.Resend(process.env.RESEND_API_KEY);
-exports.sendPassword = function (email, token) { return __awaiter(void 0, void 0, void 0, function () {
-    var passwordLink;
+exports.reset = void 0;
+var schemas_1 = require("@/schemas");
+var user_1 = require("@/data/user");
+var tokens_1 = require("@/lib/tokens");
+var mail_1 = require("@/lib/mail");
+exports.reset = function (values) { return __awaiter(void 0, void 0, void 0, function () {
+    var validated, email, existUser, passwordResetToken;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                passwordLink = "http://localhost:3000/auth/new-password?token=" + token;
-                return [4 /*yield*/, resend.emails.send({
-                        from: "onboarding@resend.dev",
-                        to: email,
-                        subject: "Reset Your Password",
-                        html: "<p>Click <a href=\"" + passwordLink + "\">Here</a> to reset password.</p>"
-                    })];
+                validated = schemas_1.ResetSchema.safeParse(values);
+                if (!validated.success) {
+                    return [2 /*return*/, { error: "Invalid Email" }];
+                }
+                email = validated.data.email;
+                return [4 /*yield*/, user_1.getUser(email)];
             case 1:
+                existUser = _a.sent();
+                if (!existUser || !existUser.email) {
+                    return [2 /*return*/, { error: "Email doesn not exist!" }];
+                }
+                return [4 /*yield*/, tokens_1.generatePasswordReset(email)];
+            case 2:
+                passwordResetToken = _a.sent();
+                return [4 /*yield*/, mail_1.sendPassword(passwordResetToken.email, passwordResetToken.token)];
+            case 3:
                 _a.sent();
-                return [2 /*return*/];
-        }
-    });
-}); };
-exports.sendEmail = function (email, token) { return __awaiter(void 0, void 0, void 0, function () {
-    var confirmationLink;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                confirmationLink = "http://localhost:3000/auth/new-verification?token=" + token;
-                return [4 /*yield*/, resend.emails.send({
-                        from: "onboarding@resend.dev",
-                        to: email,
-                        subject: "Confirm Your Email",
-                        html: "<p>Click <a href=\"" + confirmationLink + "\">Here</a> to confirm email.</p>"
-                    })];
-            case 1:
-                _a.sent();
-                return [2 /*return*/];
+                return [2 /*return*/, { success: "Email Sent!" }];
         }
     });
 }); };

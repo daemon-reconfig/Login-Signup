@@ -1,3 +1,4 @@
+"use server";
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -36,42 +37,58 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.sendEmail = exports.sendPassword = void 0;
-var resend_1 = require("resend");
-var resend = new resend_1.Resend(process.env.RESEND_API_KEY);
-exports.sendPassword = function (email, token) { return __awaiter(void 0, void 0, void 0, function () {
-    var passwordLink;
+exports.newPassword = void 0;
+var password_reset_t_1 = require("@/data/password-reset-t");
+var user_1 = require("@/data/user");
+var schemas_1 = require("@/schemas");
+var bcryptjs_1 = require("bcryptjs");
+var db_1 = require("@/lib/db");
+exports.newPassword = function (values, token) { return __awaiter(void 0, void 0, void 0, function () {
+    var validated, password, existToken, hasExpired, existUser, hashedPassword;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                passwordLink = "http://localhost:3000/auth/new-password?token=" + token;
-                return [4 /*yield*/, resend.emails.send({
-                        from: "onboarding@resend.dev",
-                        to: email,
-                        subject: "Reset Your Password",
-                        html: "<p>Click <a href=\"" + passwordLink + "\">Here</a> to reset password.</p>"
-                    })];
+                if (!token) {
+                    return [2 /*return*/, { error: "No Token!" }];
+                }
+                validated = schemas_1.NewPasswordSchema.safeParse(values);
+                if (!validated.success) {
+                    return [2 /*return*/, { error: "Invalid Password" }];
+                }
+                password = validated.data.password;
+                return [4 /*yield*/, password_reset_t_1.getPasswordResetT(token)];
             case 1:
-                _a.sent();
-                return [2 /*return*/];
-        }
-    });
-}); };
-exports.sendEmail = function (email, token) { return __awaiter(void 0, void 0, void 0, function () {
-    var confirmationLink;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                confirmationLink = "http://localhost:3000/auth/new-verification?token=" + token;
-                return [4 /*yield*/, resend.emails.send({
-                        from: "onboarding@resend.dev",
-                        to: email,
-                        subject: "Confirm Your Email",
-                        html: "<p>Click <a href=\"" + confirmationLink + "\">Here</a> to confirm email.</p>"
+                existToken = _a.sent();
+                if (!existToken) {
+                    return [2 /*return*/, { error: "Invalid Token!" }];
+                }
+                hasExpired = new Date(existToken.expires) < new Date();
+                if (hasExpired) {
+                    return [2 /*return*/, { error: "Token Expired!" }];
+                }
+                return [4 /*yield*/, user_1.getUser(existToken.email)];
+            case 2:
+                existUser = _a.sent();
+                if (!existUser) {
+                    return [2 /*return*/, { error: "User not found!" }];
+                }
+                return [4 /*yield*/, bcryptjs_1["default"].hash(password, 10)];
+            case 3:
+                hashedPassword = _a.sent();
+                return [4 /*yield*/, db_1.db.user.update({
+                        where: { id: existUser.id },
+                        data: {
+                            password: hashedPassword
+                        }
                     })];
-            case 1:
+            case 4:
                 _a.sent();
-                return [2 /*return*/];
+                return [4 /*yield*/, db_1.db.passwordResetToken["delete"]({
+                        where: { id: existToken.id }
+                    })];
+            case 5:
+                _a.sent();
+                return [2 /*return*/, { success: "Password Updated!" }];
         }
     });
 }); };

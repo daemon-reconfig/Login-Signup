@@ -36,42 +36,47 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.sendEmail = exports.sendPassword = void 0;
-var resend_1 = require("resend");
-var resend = new resend_1.Resend(process.env.RESEND_API_KEY);
-exports.sendPassword = function (email, token) { return __awaiter(void 0, void 0, void 0, function () {
-    var passwordLink;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+exports.getPasswordResetE = exports.getPasswordResetT = void 0;
+var db_1 = require("@/lib/db");
+exports.getPasswordResetT = function (token) { return __awaiter(void 0, void 0, void 0, function () {
+    var resetToken, _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0:
-                passwordLink = "http://localhost:3000/auth/new-password?token=" + token;
-                return [4 /*yield*/, resend.emails.send({
-                        from: "onboarding@resend.dev",
-                        to: email,
-                        subject: "Reset Your Password",
-                        html: "<p>Click <a href=\"" + passwordLink + "\">Here</a> to reset password.</p>"
+                _b.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, db_1.db.passwordResetToken.findFirst({
+                        where: {
+                            token: token
+                        }
                     })];
             case 1:
-                _a.sent();
-                return [2 /*return*/];
+                resetToken = _b.sent();
+                return [2 /*return*/, resetToken];
+            case 2:
+                _a = _b.sent();
+                return [2 /*return*/, null];
+            case 3: return [2 /*return*/];
         }
     });
 }); };
-exports.sendEmail = function (email, token) { return __awaiter(void 0, void 0, void 0, function () {
-    var confirmationLink;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+exports.getPasswordResetE = function (email) { return __awaiter(void 0, void 0, void 0, function () {
+    var resetToken, _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0:
-                confirmationLink = "http://localhost:3000/auth/new-verification?token=" + token;
-                return [4 /*yield*/, resend.emails.send({
-                        from: "onboarding@resend.dev",
-                        to: email,
-                        subject: "Confirm Your Email",
-                        html: "<p>Click <a href=\"" + confirmationLink + "\">Here</a> to confirm email.</p>"
+                _b.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, db_1.db.passwordResetToken.findFirst({
+                        where: {
+                            email: email
+                        }
                     })];
             case 1:
-                _a.sent();
-                return [2 /*return*/];
+                resetToken = _b.sent();
+                return [2 /*return*/, resetToken];
+            case 2:
+                _a = _b.sent();
+                return [2 /*return*/, null];
+            case 3: return [2 /*return*/];
         }
     });
 }); };
