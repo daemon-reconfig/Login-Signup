@@ -37,48 +37,45 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.signup = void 0;
-var bcryptjs_1 = require("bcryptjs");
+exports.newVerification = void 0;
 var db_1 = require("@/lib/db");
-var schemas_1 = require("@/schemas");
 var user_1 = require("@/data/user");
-var tokens_1 = require("@/lib/tokens");
-var mail_1 = require("@/lib/mail");
-exports.signup = function (values) { return __awaiter(void 0, void 0, void 0, function () {
-    var validated, _a, email, password, name, hashedPassword, existUser, verificationToken;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
-            case 0:
-                validated = schemas_1.SignUpSchema.safeParse(values);
-                if (!validated.success) {
-                    return [2 /*return*/, { error: "Invalid Fields" }];
-                }
-                _a = validated.data, email = _a.email, password = _a.password, name = _a.name;
-                return [4 /*yield*/, bcryptjs_1["default"].hash(password, 10)];
+var verification_t_1 = require("@/data/verification-t");
+exports.newVerification = function (token) { return __awaiter(void 0, void 0, void 0, function () {
+    var existToken, hasExpired, existUser;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, verification_t_1.getVerificationTokenT(token)];
             case 1:
-                hashedPassword = _b.sent();
-                return [4 /*yield*/, user_1.getUser(email)];
-            case 2:
-                existUser = _b.sent();
-                if (existUser) {
-                    return [2 /*return*/, { error: "User already exists" }];
+                existToken = _a.sent();
+                if (!existToken) {
+                    return [2 /*return*/, { error: "Invalid Token!" }];
                 }
-                return [4 /*yield*/, db_1.db.user.create({
+                hasExpired = new Date() > new Date(existToken.expires);
+                if (hasExpired) {
+                    return [2 /*return*/, { error: "Token has expired!" }];
+                }
+                return [4 /*yield*/, user_1.getUser(existToken.email)];
+            case 2:
+                existUser = _a.sent();
+                if (!existUser) {
+                    return [2 /*return*/, { error: "User does not exist!" }];
+                }
+                return [4 /*yield*/, db_1.db.user.update({
+                        where: { id: existUser.id },
                         data: {
-                            email: email,
-                            password: hashedPassword,
-                            name: name
+                            emailVerified: new Date(),
+                            email: existToken.email
                         }
                     })];
             case 3:
-                _b.sent();
-                return [4 /*yield*/, tokens_1.generateTokens(email)];
+                _a.sent();
+                return [4 /*yield*/, db_1.db.verificationToken["delete"]({
+                        where: { id: existToken.id }
+                    })];
             case 4:
-                verificationToken = _b.sent();
-                return [4 /*yield*/, mail_1.sendEmail(verificationToken.email, verificationToken.token)];
-            case 5:
-                _b.sent();
-                return [2 /*return*/, { success: "Email sent!" }];
+                _a.sent();
+                return [2 /*return*/, { success: "Email Verified!" }];
         }
     });
 }); };

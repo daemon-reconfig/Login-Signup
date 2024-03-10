@@ -44,6 +44,7 @@ var routes_1 = require("@/routes");
 var next_auth_1 = require("next-auth");
 var user_1 = require("@/data/user");
 var tokens_1 = require("@/lib/tokens");
+var mail_1 = require("@/lib/mail");
 exports.login = function (values) { return __awaiter(void 0, void 0, void 0, function () {
     var validated, _a, email, password, existUser, verificationToken, error_1;
     return __generator(this, function (_b) {
@@ -60,22 +61,25 @@ exports.login = function (values) { return __awaiter(void 0, void 0, void 0, fun
                 if (!existUser || !existUser.email || !existUser.password) {
                     return [2 /*return*/, { error: "Email doesn not exist!" }];
                 }
-                if (!!existUser.emailVerified) return [3 /*break*/, 3];
+                if (!!existUser.emailVerified) return [3 /*break*/, 4];
                 return [4 /*yield*/, tokens_1.generateTokens(existUser.email)];
             case 2:
                 verificationToken = _b.sent();
-                return [2 /*return*/, { success: "Email Sent!" }];
+                return [4 /*yield*/, mail_1.sendEmail(verificationToken.email, verificationToken.token)];
             case 3:
-                _b.trys.push([3, 5, , 6]);
+                _b.sent();
+                return [2 /*return*/, { success: "Email Sent!" }];
+            case 4:
+                _b.trys.push([4, 6, , 7]);
                 return [4 /*yield*/, auth_1.signIn("credentials", {
                         email: email,
                         password: password,
                         redirectTo: routes_1.DEFAULT_LOGIN_REDIRECT
                     })];
-            case 4:
-                _b.sent();
-                return [3 /*break*/, 6];
             case 5:
+                _b.sent();
+                return [3 /*break*/, 7];
+            case 6:
                 error_1 = _b.sent();
                 if (error_1 instanceof next_auth_1.AuthError) {
                     switch (error_1.type) {
@@ -86,7 +90,7 @@ exports.login = function (values) { return __awaiter(void 0, void 0, void 0, fun
                     }
                 }
                 throw error_1;
-            case 6: return [2 /*return*/];
+            case 7: return [2 /*return*/];
         }
     });
 }); };
