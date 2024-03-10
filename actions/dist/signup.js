@@ -42,8 +42,9 @@ var bcryptjs_1 = require("bcryptjs");
 var db_1 = require("@/lib/db");
 var schemas_1 = require("@/schemas");
 var user_1 = require("@/data/user");
+var tokens_1 = require("@/lib/tokens");
 exports.signup = function (values) { return __awaiter(void 0, void 0, void 0, function () {
-    var validated, _a, email, password, name, hashedPassword, existUser;
+    var validated, _a, email, password, name, hashedPassword, existUser, verificationToken;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -70,6 +71,9 @@ exports.signup = function (values) { return __awaiter(void 0, void 0, void 0, fu
                     })];
             case 3:
                 _b.sent();
+                return [4 /*yield*/, tokens_1.generateTokens(email)];
+            case 4:
+                verificationToken = _b.sent();
                 return [2 /*return*/, { success: "Email sent!" }];
         }
     });

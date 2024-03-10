@@ -1,4 +1,3 @@
-"use server";
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -37,56 +36,43 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.login = void 0;
-var schemas_1 = require("@/schemas");
-var auth_1 = require("@/auth");
-var routes_1 = require("@/routes");
-var next_auth_1 = require("next-auth");
-var user_1 = require("@/data/user");
-var tokens_1 = require("@/lib/tokens");
-exports.login = function (values) { return __awaiter(void 0, void 0, void 0, function () {
-    var validated, _a, email, password, existUser, verificationToken, error_1;
+exports.getVerificationTokenE = exports.getVerificationTokenT = void 0;
+var db_1 = require("@/lib/db");
+exports.getVerificationTokenT = function (token) { return __awaiter(void 0, void 0, void 0, function () {
+    var verificationToken, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                validated = schemas_1.LoginSchema.safeParse(values);
-                if (!validated.success) {
-                    return [2 /*return*/, { error: "Invalid Fields" }];
-                }
-                _a = validated.data, email = _a.email, password = _a.password;
-                return [4 /*yield*/, user_1.getUser(email)];
-            case 1:
-                existUser = _b.sent();
-                if (!existUser || !existUser.email || !existUser.password) {
-                    return [2 /*return*/, { error: "Email doesn not exist!" }];
-                }
-                if (!!existUser.emailVerified) return [3 /*break*/, 3];
-                return [4 /*yield*/, tokens_1.generateTokens(existUser.email)];
-            case 2:
-                verificationToken = _b.sent();
-                return [2 /*return*/, { success: "Email Sent!" }];
-            case 3:
-                _b.trys.push([3, 5, , 6]);
-                return [4 /*yield*/, auth_1.signIn("credentials", {
-                        email: email,
-                        password: password,
-                        redirectTo: routes_1.DEFAULT_LOGIN_REDIRECT
+                _b.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, db_1.db.verificationToken.findUnique({
+                        where: { token: token }
                     })];
-            case 4:
-                _b.sent();
-                return [3 /*break*/, 6];
-            case 5:
-                error_1 = _b.sent();
-                if (error_1 instanceof next_auth_1.AuthError) {
-                    switch (error_1.type) {
-                        case "CredentialsSignin":
-                            return [2 /*return*/, { error: "Invalid credentials!" }];
-                        default:
-                            return [2 /*return*/, { error: "Something went wrong!" }];
-                    }
-                }
-                throw error_1;
-            case 6: return [2 /*return*/];
+            case 1:
+                verificationToken = _b.sent();
+                return [2 /*return*/, verificationToken];
+            case 2:
+                _a = _b.sent();
+                return [2 /*return*/, null];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
+exports.getVerificationTokenE = function (email) { return __awaiter(void 0, void 0, void 0, function () {
+    var verificationToken, _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, db_1.db.verificationToken.findFirst({
+                        where: { email: email }
+                    })];
+            case 1:
+                verificationToken = _b.sent();
+                return [2 /*return*/, verificationToken];
+            case 2:
+                _a = _b.sent();
+                return [2 /*return*/, null];
+            case 3: return [2 /*return*/];
         }
     });
 }); };

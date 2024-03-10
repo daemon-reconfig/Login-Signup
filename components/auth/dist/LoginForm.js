@@ -16,6 +16,7 @@ exports.LoginForm = void 0;
 var react_hook_form_1 = require("react-hook-form");
 var zod_1 = require("@hookform/resolvers/zod");
 var card_wrapper_1 = require("./card-wrapper");
+var navigation_1 = require("next/navigation");
 var react_1 = require("react");
 var schemas_1 = require("@/schemas");
 var form_1 = require("../ui/form");
@@ -25,6 +26,8 @@ var form_errors_1 = require("../form-errors");
 var form_success_1 = require("../form-success");
 var login_1 = require("@/actions/login");
 exports.LoginForm = function () {
+    var searchParams = navigation_1.useSearchParams();
+    var urlE = searchParams.get("error") === "OAuthAccountNotLinked" ? "Email already in use with different provider!" : "";
     var _a = react_1.useState(""), error = _a[0], setError = _a[1];
     var _b = react_1.useState(""), success = _b[0], setSuccess = _b[1];
     var _c = react_1.useTransition(), isPending = _c[0], startTransition = _c[1];
@@ -41,10 +44,8 @@ exports.LoginForm = function () {
         startTransition(function () {
             login_1.login(values)
                 .then(function (data) {
-                if (data) {
-                    setError(data.error);
-                    setSuccess(data.success);
-                }
+                setError(data === null || data === void 0 ? void 0 : data.error);
+                setSuccess((data === null || data === void 0 ? void 0 : data.success) || "");
             });
         });
     };
@@ -68,7 +69,7 @@ exports.LoginForm = function () {
                                     React.createElement(input_1.Input, __assign({}, field, { disabled: isPending, placeholder: "somesecret", type: "password" }))),
                                 React.createElement(form_1.FormMessage, null)));
                         } })),
-                React.createElement(form_errors_1.FormErrors, { errors: error }),
+                React.createElement(form_errors_1.FormErrors, { errors: error || urlE }),
                 React.createElement(form_success_1.FormSuccess, { successes: success }),
                 React.createElement(button_1.Button, { type: "submit", className: "w-full", disabled: isPending }, "Login")))));
 };

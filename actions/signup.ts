@@ -4,6 +4,7 @@ import {db} from "@/lib/db";
 import { SignUpSchema } from "@/schemas";
 import * as z from "zod";
 import { getUser } from "@/data/user";
+import { generateTokens } from "@/lib/tokens";
 
 export const signup = async (values: z.infer<typeof SignUpSchema>) => {
     const validated = SignUpSchema.safeParse(values);
@@ -23,5 +24,6 @@ export const signup = async (values: z.infer<typeof SignUpSchema>) => {
               name,
        } 
     })
+    const verificationToken = await generateTokens(email);
     return {success: "Email sent!"};
 }

@@ -3,6 +3,7 @@ import * as z from "zod";
 import { useForm } from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import { CardWrapper } from "./card-wrapper";
+import {useSearchParams} from 'next/navigation';
 import { useState, useTransition} from "react";
 import { LoginSchema } from "@/schemas";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
@@ -13,6 +14,8 @@ import { FormSuccess } from "../form-success";
 import { login } from "@/actions/login";
 
 export const LoginForm = () => {
+    const searchParams = useSearchParams(); 
+    const urlE = searchParams.get("error") === "OAuthAccountNotLinked" ? "Email already in use with different provider!" : "";
     const [error, setError] = useState<string | undefined>("");
     const [success, setSuccess] = useState("");
     const [isPending, startTransition] = useTransition();
@@ -28,16 +31,12 @@ export const LoginForm = () => {
     ) => {
         setError("");
         setSuccess("");
-        startTransition(()=> {
-            
+        startTransition(() => {
             login(values)
-            .then((data) => {
-                if (data) {
-                    setError(data.error);
-                    setSuccess(data.success);
-                    
-                }
-            })
+                .then((data) => {
+                    setError(data?.error);
+                    setSuccess(data?.success || ""); 
+                });
         });
     }
     return (
@@ -93,7 +92,7 @@ export const LoginForm = () => {
                     />
 
                 </div>
-                <FormErrors errors={error}/>
+                <FormErrors errors={error || urlE}/>
                 <FormSuccess successes={success} />
                 <Button type="submit" className="w-full" disabled={isPending}>
                     Login
