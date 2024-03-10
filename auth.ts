@@ -35,7 +35,7 @@ export const {
             // preventing sign in without verification
             if(!existUser?.emailVerified) return false;
 
-            if(existUser.twoFactorEnabled) {
+            if(existUser.isTwoFactorEnabled) {
                 const twoFactorConfirm = await getTwoFactorConfirm(existUser.id);
                 console.log({twoFactorConfirm});
                 if(!twoFactorConfirm) return false;

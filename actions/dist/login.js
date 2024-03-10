@@ -47,6 +47,7 @@ var tokens_1 = require("@/lib/tokens");
 var two_factor_t_1 = require("@/data/two-factor-t");
 var mail_1 = require("@/lib/mail");
 var db_1 = require("@/lib/db");
+var two_factor_confirm_1 = require("@/data/two-factor-confirm");
 exports.login = function (values) { return __awaiter(void 0, void 0, void 0, function () {
     var validated, _a, email, password, code, existUser, verificationToken, twoFactorToken, hasExpired, existConfirm, twoFactorToken, error_1;
     return __generator(this, function (_b) {
@@ -72,7 +73,7 @@ exports.login = function (values) { return __awaiter(void 0, void 0, void 0, fun
                 _b.sent();
                 return [2 /*return*/, { success: "Email Sent!" }];
             case 4:
-                if (!(!existUser.twoFactorEnabled && existUser.email)) return [3 /*break*/, 14];
+                if (!(!existUser.isTwoFactorEnabled && existUser.email)) return [3 /*break*/, 14];
                 if (!code) return [3 /*break*/, 11];
                 console.log("code", code);
                 return [4 /*yield*/, two_factor_t_1.getTwoFactorE(existUser.email)];
@@ -86,13 +87,13 @@ exports.login = function (values) { return __awaiter(void 0, void 0, void 0, fun
                     return [2 /*return*/, { error: "Code Expired!" }];
                 }
                 return [4 /*yield*/, db_1.db.twoFactorToken["delete"]({
-                        data: {
-                            userId: existUser.id
+                        where: {
+                            id: existUser.id
                         }
                     })];
             case 6:
                 _b.sent();
-                return [4 /*yield*/, db_1.db.twoFactorConfirm(existUser.id)];
+                return [4 /*yield*/, two_factor_confirm_1.getTwoFactorConfirm(existUser.id)];
             case 7:
                 existConfirm = _b.sent();
                 if (!existConfirm) return [3 /*break*/, 9];

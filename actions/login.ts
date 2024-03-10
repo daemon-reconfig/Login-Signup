@@ -29,7 +29,7 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
         );
         return {success: "Email Sent!"}
     }
-    if(!existUser.twoFactorEnabled && existUser.email) {
+    if(!existUser.isTwoFactorEnabled && existUser.email) {
         if (code){
             console.log("code", code);
             
@@ -46,12 +46,12 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
             }
 
             await db.twoFactorToken.delete({
-                data: {
-                    userId: existUser.id,
+                where: {
+                    id: existUser.id,
                 }
             });
 
-            const existConfirm = await db.twoFactorConfirm(existUser.id);
+            const existConfirm = await getTwoFactorConfirm(existUser.id);
             if(existConfirm){
                 await db.twoFactorConfirm.delete({
                     where: {id: existConfirm.id}
