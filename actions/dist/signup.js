@@ -41,6 +41,7 @@ exports.signup = void 0;
 var bcrypt_1 = require("bcrypt");
 var db_1 = require("@/lib/db");
 var schemas_1 = require("@/schemas");
+var user_1 = require("@/data/user");
 exports.signup = function (values) { return __awaiter(void 0, void 0, void 0, function () {
     var validated, _a, email, password, name, hashedPassword, existUser;
     return __generator(this, function (_b) {
@@ -54,11 +55,7 @@ exports.signup = function (values) { return __awaiter(void 0, void 0, void 0, fu
                 return [4 /*yield*/, bcrypt_1["default"].hash(password, 10)];
             case 1:
                 hashedPassword = _b.sent();
-                return [4 /*yield*/, db_1.db.user.findUnique({
-                        where: {
-                            email: email
-                        }
-                    })];
+                return [4 /*yield*/, user_1.getUser(email)];
             case 2:
                 existUser = _b.sent();
                 if (existUser) {

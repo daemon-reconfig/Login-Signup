@@ -48,7 +48,7 @@ exports.SignUpForm = function () {
         React.createElement(form_1.Form, __assign({}, methods),
             React.createElement("form", { onSubmit: methods.handleSubmit(onSubmit), className: "space-y-6" },
                 React.createElement("div", { className: "space-y-4" },
-                    React.createElement(form_1.FormField, { control: methods.control, name: "password", render: function (_a) {
+                    React.createElement(form_1.FormField, { control: methods.control, name: "name", render: function (_a) {
                             var field = _a.field;
                             return (React.createElement(form_1.FormItem, null,
                                 React.createElement(form_1.FormLabel, null, "Name"),

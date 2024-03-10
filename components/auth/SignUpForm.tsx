@@ -50,7 +50,7 @@ export const SignUpForm = () => {
                 <div className="space-y-4">
                 <FormField 
                         control={methods.control}
-                        name="password"
+                        name="name"
                         render={({field})=>(
                             <FormItem>
                                 <FormLabel>Name</FormLabel>
