@@ -1,4 +1,3 @@
-"use server";
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -37,43 +36,47 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.signup = void 0;
-var bcrypt_1 = require("bcrypt");
+exports.getUserbyId = exports.getUser = void 0;
 var db_1 = require("@/lib/db");
-var schemas_1 = require("@/schemas");
-exports.signup = function (values) { return __awaiter(void 0, void 0, void 0, function () {
-    var validated, _a, email, password, name, hashedPassword, existUser;
+exports.getUser = function (email) { return __awaiter(void 0, void 0, void 0, function () {
+    var user, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                validated = schemas_1.SignUpSchema.safeParse(values);
-                if (!validated.success) {
-                    return [2 /*return*/, { error: "Invalid Fields" }];
-                }
-                _a = validated.data, email = _a.email, password = _a.password, name = _a.name;
-                return [4 /*yield*/, bcrypt_1["default"].hash(password, 10)];
-            case 1:
-                hashedPassword = _b.sent();
+                _b.trys.push([0, 2, , 3]);
                 return [4 /*yield*/, db_1.db.user.findUnique({
                         where: {
                             email: email
                         }
                     })];
+            case 1:
+                user = _b.sent();
+                return [2 /*return*/, user];
             case 2:
-                existUser = _b.sent();
-                if (existUser) {
-                    return [2 /*return*/, { error: "User already exists" }];
-                }
-                return [4 /*yield*/, db_1.db.user.create({
-                        data: {
-                            email: email,
-                            password: hashedPassword,
-                            name: name
+                _a = _b.sent();
+                return [2 /*return*/, null];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
+exports.getUserbyId = function (id) { return __awaiter(void 0, void 0, void 0, function () {
+    var user, _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, db_1.db.user.findUnique({
+                        where: {
+                            id: id
                         }
                     })];
-            case 3:
-                _b.sent();
-                return [2 /*return*/, { success: "Email sent!" }];
+            case 1:
+                user = _b.sent();
+                return [2 /*return*/, user];
+            case 2:
+                _a = _b.sent();
+                return [2 /*return*/, null];
+            case 3: return [2 /*return*/];
         }
     });
 }); };
