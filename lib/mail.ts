@@ -9,7 +9,7 @@ export const twoFactor = async (
 
     await resend.emails.send({
         from: "mail@santushtiservices.in",
-        to: email,
+        to: [email],
         subject: "Two Factor Authentication",
         html: `<p>Your two factor authentication code is: ${token}</p>` 
     })
@@ -22,7 +22,7 @@ export const sendPassword = async (
 
     await resend.emails.send({
         from: "mail@santushtiservices.in",
-        to: email,
+        to: [email],
         subject: "Reset Your Password",
         html: `<p>Click <a href="${passwordLink}">Here</a> to reset password.</p>`
     })
@@ -37,7 +37,7 @@ export const sendEmail = async (
 
     await resend.emails.send({
         from: "mail@santushtiservices.in",
-        to: email,
+        to: [email],
         subject: "Confirm Your Email",
         html: `<p>Click <a href="${confirmationLink}">Here</a> to confirm email.</p>`
     })
