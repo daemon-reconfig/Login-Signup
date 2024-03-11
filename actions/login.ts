@@ -29,7 +29,7 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
         );
         return {success: "Email Sent!"}
     }
-    if(!existUser.isTwoFactorEnabled && existUser.email) {
+    if(existUser.isTwoFactorEnabled && existUser.email) {
         if (code){
             console.log("code", code);
             
@@ -71,7 +71,7 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
                 twoFactorToken.email,
                 twoFactorToken.token,
             );
-            return {twoFactor: true}
+            return {twoFactor: false}
         }
     }
     try{
