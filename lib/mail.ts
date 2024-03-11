@@ -18,7 +18,7 @@ export const sendPassword = async (
     email: string,
     token: string,
 ) => {
-    const passwordLink = `http://localhost:3000/auth/new-password?token=${token}`;
+    const passwordLink = `https://login-signup-black-tau.vercel.app/auth/new-password?token=${token}`;
 
     await resend.emails.send({
         from: "mail@santushtiservices.in",
@@ -33,7 +33,7 @@ export const sendEmail = async (
     email: string,
     token: string,
 ) => {
-    const confirmationLink = `http://localhost:3000/auth/new-verification?token=${token}`;
+    const confirmationLink = `https://login-signup-black-tau.vercel.app/auth/new-verification?token=${token}`;
 
     await resend.emails.send({
         from: "mail@santushtiservices.in",
