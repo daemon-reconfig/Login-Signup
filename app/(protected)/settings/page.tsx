@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useSession, signOut } from "next-auth/react";
 
 const Settings= () => {
@@ -11,12 +12,14 @@ const Settings= () => {
     return (
         <div>
             {JSON.stringify(session)}
-            
-                <button onClick={onClick} type="submit">
-                    Sign out
-                </button>
-            
+            this is the settings page
+            <Button onClick={onClick} variant="default" type="submit">
+                Sign out
+            </Button>
         </div>
+        
+            
+        
     );
 }
 export default Settings;
